@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIM-LAB ESTEMUDA - SMKS Pemuda 3 Kesamben Blitar</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- External Libraries: SheetJS & jsPDF -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        .print-only { display: none !important; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; font-size: 10pt; }
+            .print-container { width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+            @page { size: A4 landscape; margin: 1cm; }
+        }
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .touch-active:active { transform: scale(0.98); opacity: 0.9; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col pb-16 md:pb-0">
+
+<!-- TOAST NOTIFICATION CONTAINER -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+<header class="no-print bg-slate-900 text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Mobile Menu Toggle & Brand -->
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 focus:outline-none touch-active">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <div class="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center font-bold text-white shadow-lg text-xl flex-shrink-0">
+                    💻
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-base sm:text-lg leading-tight tracking-tight text-white">SIM-LAB ESTEMUDA</h1>
+                    <p class="text-[11px] sm:text-xs text-teal-300 font-medium truncate">SMKS Pemuda 3 Kesamben Blitar</p>
+                </div>
+            </div>
+
+            <!-- Desktop Info Badges -->
+            <div class="hidden md:flex items-center space-x-3 text-xs text-slate-300">
+                <div class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>TA 2025/2026 & 2026/2027</span>
+                </div>
+                <div class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <span>PJ Lab Kom: <strong class="text-teal-300 font-bold" id="header-kalab-label">Tim Lab Komputer</strong></span>
+                </div>
+                <div class="bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <span>Luas Total: <strong class="text-teal-300 font-bold">104 m² (Lab 1: 53m² | Lab 2: 51m²)</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- MOBILE DRAWER SIDEBAR OVERLAY -->
+<div id="mobile-drawer-overlay" onclick="toggleMobileMenu(false)" class="no-print fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden transition-opacity duration-300 md:hidden"></div>
+
+<div class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col md:flex-row gap-6">
+
+    <!-- NAVIGATION SIDEBAR -->
+    <aside id="main-sidebar" class="no-print fixed md:relative top-0 left-0 bottom-0 z-50 md:z-0 w-72 md:w-72 bg-white md:bg-transparent shadow-2xl md:shadow-none transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out flex-shrink-0 overflow-y-auto p-4 md:p-0">
+        <!-- Mobile Drawer Close Header -->
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 md:hidden">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">💻</span>
+                <span class="font-heading font-bold text-slate-900 text-sm">Navigasi SIM-LAB KOM</span>
+            </div>
+            <button onclick="toggleMobileMenu(false)" class="p-1.5 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+
+        <div class="bg-white md:rounded-xl md:shadow-sm md:border border-slate-200 p-1 md:p-4 md:sticky md:top-20 space-y-4">
+            <div>
+                <div class="text-[11px] font-bold text-slate-400 uppercase px-1 py-1 tracking-wider">Menu Utama Lab Komputer</div>
+                <nav class="space-y-1 mt-1" id="nav-tabs">
+                    <button onclick="switchTab('dashboard')" id="tab-btn-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors bg-teal-50 text-teal-700 touch-active">
+                        <svg class="w-5 h-5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 001 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="truncate">Dashboard & Summary</span>
+                    </button>
+
+                    <button onclick="switchTab('lab1')" id="tab-btn-lab1" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <span class="flex-1 text-left truncate">Lab Komputer 1</span>
+                        <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">53 m²</span>
+                    </button>
+
+                    <button onclick="switchTab('lab2')" id="tab-btn-lab2" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        <span class="flex-1 text-left truncate">Lab Komputer 2</span>
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-1.5 py-0.5 rounded-full">51 m²</span>
+                    </button>
+
+                    <button onclick="switchTab('upload')" id="tab-btn-upload" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        <span class="flex-1 text-left font-semibold text-emerald-700 truncate">Upload Inventaris & SOP</span>
+                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Excel/PDF</span>
+                    </button>
+
+                    <button onclick="switchTab('peminjaman')" id="tab-btn-peminjaman" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span class="flex-1 text-left truncate">Peminjaman Perangkat</span>
+                        <span id="badge-pinjam-count" class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <button onclick="switchTab('jurnal')" id="tab-btn-jurnal" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C20.832 18.477 19.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <span class="flex-1 text-left font-semibold text-teal-700 truncate">Jurnal Praktik Komputer</span>
+                        <span class="bg-teal-100 text-teal-800 text-[9px] font-bold px-1.5 py-0.5 rounded">Foto</span>
+                    </button>
+
+                    <button onclick="switchTab('pengadaan')" id="tab-btn-pengadaan" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors touch-active">
+                        <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H9M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        <span class="flex-1 text-left truncate">Usulan Pengadaan</span>
+                        <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded">Foto 10MB</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- EDIT PENANGGUNG JAWAB DOKUMEN PANEL -->
+            <div class="pt-3 border-t border-slate-200">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                        <span>✏️ Penanggung Jawab Sarpras</span>
+                    </div>
+                    <span class="text-[9px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded font-medium">Auto-Sync</span>
+                </div>
+                
+                <div class="space-y-2.5 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="text-[10px] font-bold text-teal-800 uppercase block mb-0.5">1. Ka. Lab Komputer</label>
+                        <input type="text" id="input-kalab-name" onchange="saveSignatories()" placeholder="Nama Kepala Lab Komputer..." class="w-full bg-white px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-teal-500">
+                        <input type="text" id="input-kalab-nip" onchange="saveSignatories()" placeholder="NIP/NIY..." class="w-full bg-white px-2 py-1 border border-slate-200 rounded-lg text-slate-500 text-[11px] mt-1">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-700 uppercase block mb-0.5">2. Kepala Sekolah</label>
+                        <input type="text" id="input-kepsek-name" onchange="saveSignatories()" placeholder="Nama Kepala Sekolah..." class="w-full bg-white px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-teal-500">
+                        <input type="text" id="input-kepsek-nip" onchange="saveSignatories()" placeholder="NIP/NIY..." class="w-full bg-white px-2 py-1 border border-slate-200 rounded-lg text-slate-500 text-[11px] mt-1">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-700 uppercase block mb-0.5">3. Waka Sarpras</label>
+                        <input type="text" id="input-waka-name" onchange="saveSignatories()" placeholder="Nama Waka Sarpras..." class="w-full bg-white px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:ring-1 focus:ring-teal-500">
+                        <input type="text" id="input-waka-nip" onchange="saveSignatories()" placeholder="NIP/NIY..." class="w-full bg-white px-2 py-1 border border-slate-200 rounded-lg text-slate-500 text-[11px] mt-1">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 min-w-0">
+
+        <!-- TAB 1: DASHBOARD -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-teal-900 to-indigo-950 rounded-2xl p-5 sm:p-6 text-white shadow-md relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="relative z-10">
+                    <div class="inline-flex flex-wrap items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-200 text-[11px] font-semibold mb-3 border border-teal-400/30">
+                        <span>FM-SAR-07 Rev: 00</span> • <span>SMKS Pemuda 3 Kesamben Blitar</span> • <span>Lab Kom 1: 53 m² | Lab Kom 2: 51 m²</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-heading font-bold mb-2 leading-snug">SIM-LAB KOMPUTER ESTEMUDA</h2>
+                    <p class="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                        Sistem Informasi Manajemen Laboratorium Komputer untuk pengelolaan inventaris sarana prasarana, unit Client/Server, switch & jaringan, sirkulasi peminjaman alat, jurnal praktik, SOP alat/lab, serta pengajuan pengadaan perangkat.
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 sm:gap-3">
+                        <button onclick="switchTab('upload')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3.5 py-2 rounded-xl text-xs transition-all shadow hover:shadow-lg flex items-center gap-1.5 touch-active">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                            <span>+ Import Excel / SOP PDF</span>
+                        </button>
+                        <button onclick="openModal('journal')" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-semibold px-3.5 py-2 rounded-xl text-xs transition-all shadow hover:shadow-lg flex items-center gap-1.5 touch-active">
+                            <span>📝 + Entri Jurnal Lab</span>
+                        </button>
+                        <button onclick="openModal('pengadaan')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold px-3.5 py-2 rounded-xl text-xs transition-all shadow hover:shadow-lg flex items-center gap-1.5 touch-active">
+                            <span>📷 + Usulan Pengadaan</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Grid -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-colors cursor-pointer touch-active" onclick="switchTab('lab1')">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Lab Komputer 1</span>
+                        <div class="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-base sm:text-lg">💻</div>
+                    </div>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span class="text-2xl sm:text-3xl font-bold text-indigo-700" id="stat-total-lab1">0</span>
+                        <span class="text-[10px] font-medium text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">53 m²</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-300 transition-colors cursor-pointer touch-active" onclick="switchTab('lab2')">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Lab Komputer 2</span>
+                        <div class="p-1.5 bg-blue-50 text-blue-600 rounded-lg text-base sm:text-lg">🖥️</div>
+                    </div>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span class="text-2xl sm:text-3xl font-bold text-blue-700" id="stat-total-lab2">0</span>
+                        <span class="text-[10px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">51 m²</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-purple-300 transition-colors cursor-pointer touch-active" onclick="switchTab('peminjaman')">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Peminjaman Perangkat</span>
+                        <div class="p-1.5 bg-purple-50 text-purple-600 rounded-lg text-base sm:text-lg">🔄</div>
+                    </div>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span class="text-2xl sm:text-3xl font-bold text-purple-700" id="stat-total-borrowed">0</span>
+                        <span class="text-[10px] font-medium text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded">Aktif</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 transition-colors cursor-pointer touch-active" onclick="switchTab('pengadaan')">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Perlu Tindakan / Rusak</span>
+                        <div class="p-1.5 bg-amber-50 text-amber-600 rounded-lg text-base sm:text-lg">⚠️</div>
+                    </div>
+                    <div class="mt-2 flex items-baseline justify-between">
+                        <span class="text-2xl sm:text-3xl font-bold text-amber-600" id="stat-total-need-action">0</span>
+                        <span class="text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Tindakan</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DOKUMEN SOP & JADWAL LAB/WORKSHOP (PDF DISPLAY) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <span>📋 Dokumen Operational & SOP Lab / Workshop (PDF)</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Akses langsung Jadwal Penggunaan Lab, SOP Alat, serta SOP Penggunaan Lab dalam format PDF.</p>
+                    </div>
+                    <div>
+                        <button onclick="switchTab('upload')" class="bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors border border-teal-200 flex items-center gap-1.5 touch-active">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span>Kelola / Unggah SOP Baru</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CARDS GRID UNTUK JADWAL & SOP -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="dashboard-sop-cards-container">
+                    <!-- CARD 1: JADWAL PENGGUNAAN -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-teal-400 transition-colors">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-indigo-100 text-indigo-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Jadwal Praktik</span>
+                                <span id="badge-jadwal-status" class="text-[10px] font-semibold text-slate-400">Belum Ada</span>
+                            </div>
+                            <h4 class="font-heading font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5">
+                                📅 Jadwal Penggunaan Lab / Workshop
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mb-3" id="info-jadwal-desc">File PDF jadwal pemakaian ruang laboratorium & workshop per semester.</p>
+                        </div>
+                        <div id="action-jadwal-container" class="pt-2 border-t border-slate-200 flex items-center gap-2">
+                            <input type="file" id="upload-pdf-jadwal" accept=".pdf" onchange="uploadSopPdf('jadwal', event)" class="hidden">
+                            <label for="upload-pdf-jadwal" class="cursor-pointer flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-1.5 px-2 rounded-lg text-center transition-all touch-active">
+                                📤 Upload PDF
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: SOP PENGGUNAAN ALAT -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-teal-400 transition-colors">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">SOP Alat</span>
+                                <span id="badge-sop-alat-status" class="text-[10px] font-semibold text-slate-400">Belum Ada</span>
+                            </div>
+                            <h4 class="font-heading font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5">
+                                ⚙️ SOP Penggunaan Alat
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mb-3" id="info-sop-alat-desc">Panduan Operasional Standar pengoperasian PC, Server, Router, & Switch.</p>
+                        </div>
+                        <div id="action-sop-alat-container" class="pt-2 border-t border-slate-200 flex items-center gap-2">
+                            <input type="file" id="upload-pdf-sop-alat" accept=".pdf" onchange="uploadSopPdf('sop_alat', event)" class="hidden">
+                            <label for="upload-pdf-sop-alat" class="cursor-pointer flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-1.5 px-2 rounded-lg text-center transition-all touch-active">
+                                📤 Upload PDF
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CARD 3: SOP PENGGUNAAN LAB / WORKSHOP -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-teal-400 transition-colors">
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">SOP Ruangan</span>
+                                <span id="badge-sop-lab-status" class="text-[10px] font-semibold text-slate-400">Belum Ada</span>
+                            </div>
+                            <h4 class="font-heading font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5">
+                                🏛️ SOP Penggunaan Workshop / Lab
+                            </h4>
+                            <p class="text-[11px] text-slate-500 mb-3" id="info-sop-lab-desc">Tata tertib, prosedur keselamatan K3, dan alur penggunaan lab kom.</p>
+                        </div>
+                        <div id="action-sop-lab-container" class="pt-2 border-t border-slate-200 flex items-center gap-2">
+                            <input type="file" id="upload-pdf-sop-lab" accept=".pdf" onchange="uploadSopPdf('sop_lab', event)" class="hidden">
+                            <label for="upload-pdf-sop-lab" class="cursor-pointer flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-1.5 px-2 rounded-lg text-center transition-all touch-active">
+                                📤 Upload PDF
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KESIMPULAN LAPORAN ASET TERVERIFIKASI -->
+            <div class="bg-white rounded-2xl border-2 border-teal-600/30 shadow-md p-4 sm:p-6 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                TERVERIFIKASI KEPALA LAB KOMPUTER
+                            </span>
+                            <span class="text-xs text-slate-500 font-mono">FM-SAR-07 Rev.00</span>
+                        </div>
+                        <h3 class="font-heading font-bold text-slate-900 text-lg sm:text-xl">Kesimpulan Laporan Inventaris Sarana Lab Komputer</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Ringkasan ketersediaan PC Server, PC Client, Networking, Meja-Kursi, serta kondisi sarana pada Lab Kom 1 (53 m²) dan Lab Kom 2 (51 m²).</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="exportAssetSummaryDoc()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition-all shadow-sm flex items-center gap-1.5 touch-active">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Unduh (.doc)</span>
+                        </button>
+                        <button onclick="printAssetSummary()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-xl text-xs transition-all border border-slate-300 flex items-center gap-1.5 touch-active">
+                            <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            <span>Cetak Laporan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <span class="font-bold text-slate-700 block uppercase mb-1">1. Lab Komputer 1 (53 m²)</span>
+                            <div class="space-y-1 text-slate-600">
+                                <div class="flex justify-between"><span>Total Jenis Barang:</span> <strong id="sum-lab1-types" class="text-slate-900">0</strong></div>
+                                <div class="flex justify-between"><span>Total Unit Fisik:</span> <strong id="sum-lab1-units" class="text-slate-900">0</strong></div>
+                                <div class="flex justify-between"><span>Kondisi Baik:</span> <strong id="sum-lab1-good" class="text-emerald-700">0</strong></div>
+                                <div class="flex justify-between"><span>Kondisi Rusak:</span> <strong id="sum-lab1-bad" class="text-rose-600">0</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                            <span class="font-bold text-slate-700 block uppercase mb-1">2. Lab Komputer 2 (51 m²)</span>
+                            <div class="space-y-1 text-slate-600">
+                                <div class="flex justify-between"><span>Total Jenis Barang:</span> <strong id="sum-lab2-types" class="text-slate-900">0</strong></div>
+                                <div class="flex justify-between"><span>Total Unit Fisik:</span> <strong id="sum-lab2-units" class="text-slate-900">0</strong></div>
+                                <div class="flex justify-between"><span>Kondisi Baik:</span> <strong id="sum-lab2-good" class="text-emerald-700">0</strong></div>
+                                <div class="flex justify-between"><span>Kondisi Rusak:</span> <strong id="sum-lab2-bad" class="text-rose-600">0</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 col-span-1 sm:col-span-2 lg:col-span-1">
+                            <span class="font-bold text-slate-700 block uppercase mb-1">3. Layanan & Jurnal Praktik</span>
+                            <div class="space-y-1 text-slate-600">
+                                <div class="flex justify-between"><span>Total Luas Lab:</span> <strong class="text-indigo-700 font-bold">104 m²</strong></div>
+                                <div class="flex justify-between"><span>Peminjaman Aktif:</span> <strong id="sum-active-loans" class="text-purple-700">0</strong></div>
+                                <div class="flex justify-between"><span>Catatan Jurnal:</span> <strong id="sum-journal-entries" class="text-teal-700">0</strong></div>
+                                <div class="flex justify-between"><span>Usulan Pengadaan:</span> <strong id="sum-pengadaan-entries" class="text-amber-700">0</strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-teal-50/70 p-3.5 rounded-xl border border-teal-200 text-xs text-slate-700 space-y-1.5">
+                        <h4 class="font-bold text-teal-900 flex items-center gap-1.5 text-xs sm:text-sm">
+                            <svg class="w-4 h-4 text-teal-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Rangkuman Status Kelayakan Sarpras Lab Komputer</span>
+                        </h4>
+                        <p id="summary-narrative-text" class="leading-relaxed text-[11px] sm:text-xs">
+                            Memuat data...
+                        </p>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                                <span>Catatan Evaluasi & Catatan Kepala Lab</span>
+                                <span class="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-normal">Tersimpan Otomatis</span>
+                            </label>
+                            <span class="text-[11px] text-slate-500 font-medium">Pemeriksa: <strong id="summary-kalab-display-name" class="text-teal-700">Kepala Lab Komputer</strong></span>
+                        </div>
+                        <textarea id="input-summary-notes" rows="2" oninput="saveSummaryNotes()" placeholder="Masukkan catatan evaluasi atau instruksi perawatan laboratorium komputer..." class="w-full p-2.5 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:outline-none bg-white text-slate-800 leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-2 border-t border-slate-200 text-[11px] text-slate-500">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                            <span>Status: <strong class="text-emerald-700 font-bold">DISAHKAN KEPALA LAB KOMPUTER (FM-SAR-07)</strong></span>
+                        </div>
+                        <div>
+                            <span>Tanggal Verifikasi: <strong id="summary-verif-date" class="text-slate-700">12 Agustus 2026</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DASHBOARD DATA INVENTARIS TABLE -->
+            <div class="bg-white rounded-xl border border-teal-200 shadow-sm p-4 sm:p-5 space-y-4">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div>
+                        <h3 class="font-heading font-bold text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                            <span>📦 Summary Seluruh Perangkat & Barang</span>
+                        </h3>
+                        <p class="text-xs text-slate-500">Daftar lengkap sarana prasarana Lab Kom 1 (53 m²) dan Lab Kom 2 (51 m²)</p>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div class="relative flex-1 sm:w-52">
+                            <input type="text" id="dashboard-inventory-search" oninput="renderDashboardUploadedItems()" placeholder="Cari barang / spesifikasi..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                        <select id="dashboard-category-filter" onchange="renderDashboardUploadedItems()" class="px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none bg-slate-50 font-medium text-slate-700">
+                            <option value="ALL">Semua Lab</option>
+                            <option value="LAB1">Lab Komputer 1 (53 m²)</option>
+                            <option value="LAB2">Lab Komputer 2 (51 m²)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-slate-200">
+                    <table class="w-full text-left text-xs min-w-[650px]">
+                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200 sticky top-0 z-10">
+                            <tr>
+                                <th class="p-2.5 text-center w-10">No</th>
+                                <th class="p-2.5">Laboratorium</th>
+                                <th class="p-2.5">Nama Barang / Perangkat</th>
+                                <th class="p-2.5">Spesifikasi Detail</th>
+                                <th class="p-2.5 text-center">Jumlah</th>
+                                <th class="p-2.5 text-center">Baik</th>
+                                <th class="p-2.5 text-center">Rusak</th>
+                                <th class="p-2.5">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-uploaded-items-body" class="divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: LAB KOMPUTER 1 (53 m²) -->
+        <section id="tab-lab1" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-indigo-600 tracking-wider uppercase">Luas Ruangan: 53 m²</span>
+                    <h2 class="text-lg sm:text-xl font-heading font-bold text-slate-900">Daftar Inventaris Lab Komputer 1</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="exportToDoc('Inventaris Lab Komputer 1 (53m2)', getLabTableHtml('lab1'))" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>📄 .doc</span>
+                    </button>
+                    <button onclick="exportCategoryExcel('lab1')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>📊 Excel</span>
+                    </button>
+                    <button onclick="openModal('inventory', 'lab1')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-3.5 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>+ Tambah Barang</span>
+                    </button>
+                    <button onclick="printCurrentReport('lab1')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-xl text-xs border border-slate-300 touch-active">
+                        <span>Cetak</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="w-full sm:w-72 relative">
+                    <input type="text" id="search-lab1" oninput="renderLab1Table()" placeholder="Cari barang / spesifikasi di Lab 1..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <select id="filter-lab1-condition" onchange="renderLab1Table()" class="w-full sm:w-auto px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="ALL">Semua Kondisi</option>
+                    <option value="BAIK">Kondisi Baik</option>
+                    <option value="RUSAK">Ada Rusak</option>
+                </select>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs min-w-[650px]">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 w-10 text-center">No</th>
+                                <th class="p-3">Nama Barang / Perangkat</th>
+                                <th class="p-3">Spesifikasi Detail</th>
+                                <th class="p-3 w-16">Satuan</th>
+                                <th class="p-3 w-16 text-center">Jumlah</th>
+                                <th class="p-3 text-center">Baik</th>
+                                <th class="p-3 text-center">Rusak</th>
+                                <th class="p-3">Keterangan</th>
+                                <th class="p-3 no-print text-center w-24">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-lab1-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: LAB KOMPUTER 2 (51 m²) -->
+        <section id="tab-lab2" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-blue-600 tracking-wider uppercase">Luas Ruangan: 51 m²</span>
+                    <h2 class="text-lg sm:text-xl font-heading font-bold text-slate-900">Daftar Inventaris Lab Komputer 2</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="exportToDoc('Inventaris Lab Komputer 2 (51m2)', getLabTableHtml('lab2'))" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>📄 .doc</span>
+                    </button>
+                    <button onclick="exportCategoryExcel('lab2')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-3 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>📊 Excel</span>
+                    </button>
+                    <button onclick="openModal('inventory', 'lab2')" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3.5 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>+ Tambah Barang</span>
+                    </button>
+                    <button onclick="printCurrentReport('lab2')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium px-3 py-2 rounded-xl text-xs border border-slate-300 touch-active">
+                        <span>Cetak</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="w-full sm:w-72 relative">
+                    <input type="text" id="search-lab2" oninput="renderLab2Table()" placeholder="Cari barang / spesifikasi di Lab 2..." class="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </div>
+                <select id="filter-lab2-condition" onchange="renderLab2Table()" class="w-full sm:w-auto px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="ALL">Semua Kondisi</option>
+                    <option value="BAIK">Kondisi Baik</option>
+                    <option value="RUSAK">Ada Rusak</option>
+                </select>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs min-w-[650px]">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 w-10 text-center">No</th>
+                                <th class="p-3">Nama Barang / Perangkat</th>
+                                <th class="p-3">Spesifikasi Detail</th>
+                                <th class="p-3 w-16">Satuan</th>
+                                <th class="p-3 w-16 text-center">Jumlah</th>
+                                <th class="p-3 text-center">Baik</th>
+                                <th class="p-3 text-center">Rusak</th>
+                                <th class="p-3">Keterangan</th>
+                                <th class="p-3 no-print text-center w-24">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-lab2-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: UPLOAD INVENTARIS & SOP -->
+        <section id="tab-upload" class="tab-content hidden space-y-6">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-lg font-heading font-bold text-slate-900 flex items-center gap-2">
+                        <span>📥 Import Data Inventaris dari Excel</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Unggah file spreadsheet Excel (.xlsx/.xls) berisi data barang untuk diimpor secara otomatis ke Lab 1 atau Lab 2.</p>
+                </div>
+
+                <div class="bg-emerald-50/50 border-2 border-dashed border-emerald-300 rounded-xl p-6 text-center space-y-3">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                        📊
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-slate-700">Pilih file Excel inventaris laboratorium (.xlsx / .xls)</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Format kolom: Nama Barang, Spesifikasi, Satuan, Jumlah, Baik, Rusak, Keterangan, Laboratorium (Lab 1 / Lab 2)</p>
+                    </div>
+                    <div class="flex justify-center gap-3">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls" onchange="handleExcelUpload(event)" class="hidden">
+                        <label for="excel-file-input" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl text-xs cursor-pointer shadow-sm transition-all touch-active inline-flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                            <span>Pilih File Excel</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SOP PDF MANAGEMENT BOARD -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-lg font-heading font-bold text-slate-900 flex items-center gap-2">
+                        <span>📑 Manajemen File PDF Jadwal & SOP Lab</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Unggah dan pratinjau langsung file PDF operational laboratorium komputer.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="upload-sop-list-container">
+                    <!-- Dynamic rendering in JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: PEMINJAMAN PERANGKAT -->
+        <section id="tab-peminjaman" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-purple-600 tracking-wider uppercase">Sirkulasi Alat</span>
+                    <h2 class="text-lg sm:text-xl font-heading font-bold text-slate-900">Peminjaman & Pengembalian Perangkat Lab</h2>
+                </div>
+                <div>
+                    <button onclick="openModal('peminjaman')" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>+ Catat Peminjaman Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs min-w-[700px]">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 w-10 text-center">No</th>
+                                <th class="p-3">Nama Peminjam & Peranan</th>
+                                <th class="p-3">Barang / Alat</th>
+                                <th class="p-3 text-center">Jumlah</th>
+                                <th class="p-3">Tgl Pinjam</th>
+                                <th class="p-3">Tgl Jatuh Tempo</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 no-print text-center w-28">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-peminjaman-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: JURNAL PRAKTIK KOMPUTER -->
+        <section id="tab-jurnal" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-teal-600 tracking-wider uppercase">Log Praktikum</span>
+                    <h2 class="text-lg sm:text-xl font-heading font-bold text-slate-900">Jurnal Penggunaan Laboratory & Workshop</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openModal('journal')" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>+ Entri Jurnal Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="jurnal-cards-container">
+                <!-- Journal Cards JS -->
+            </div>
+        </section>
+
+        <!-- TAB 7: USULAN PENGADAAN -->
+        <section id="tab-pengadaan" class="tab-content hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm">
+                <div>
+                    <span class="text-xs font-bold text-amber-600 tracking-wider uppercase">Perencanaan Sarpras</span>
+                    <h2 class="text-lg sm:text-xl font-heading font-bold text-slate-900">Usulan Pengadaan & Perbaikan Perangkat</h2>
+                </div>
+                <div>
+                    <button onclick="openModal('pengadaan')" class="bg-amber-600 hover:bg-amber-700 text-white font-semibold px-3.5 py-2 rounded-xl text-xs transition-colors shadow-sm touch-active">
+                        <span>+ Ajukan Usulan Baru</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="pengadaan-cards-container">
+                <!-- Pengadaan Cards JS -->
+            </div>
+        </section>
+
+    </main>
+</div>
+
+
+<!-- MODAL 1: ADD/EDIT INVENTORY ITEM -->
+<div id="modal-inventory" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-heading font-bold text-slate-900 text-base" id="modal-inventory-title">Tambah Barang Inventaris</h3>
+            <button onclick="closeModal('inventory')" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form id="form-inventory" onsubmit="saveInventoryItem(event)" class="space-y-3 text-xs">
+            <input type="hidden" id="inv-item-id">
+            
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Laboratorium Tujuan *</label>
+                <select id="inv-item-lab" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                    <option value="lab1">Lab Komputer 1 (53 m²)</option>
+                    <option value="lab2">Lab Komputer 2 (51 m²)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Nama Barang / Perangkat *</label>
+                <input type="text" id="inv-item-name" required placeholder="Contoh: PC Server Utama / Switch TP-Link 24 Port" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Spesifikasi Detail</label>
+                <textarea id="inv-item-specs" rows="2" placeholder="Detail spesifikasi, processor, RAM, storage, brand..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"></textarea>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Satuan</label>
+                    <input type="text" id="inv-item-unit" defaultValue="Unit" placeholder="Unit / Set / Pcs" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jumlah Baik *</label>
+                    <input type="number" id="inv-item-good" min="0" required value="0" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jumlah Rusak *</label>
+                    <input type="number" id="inv-item-bad" min="0" required value="0" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Keterangan Tambahan</label>
+                <input type="text" id="inv-item-notes" placeholder="Catatan posisi atau kondisi khusus..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal('inventory')" class="px-3.5 py-2 border border-slate-300 rounded-xl font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-sm">Simpan Barang</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 2: ADD PEMINJAMAN -->
+<div id="modal-peminjaman" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-heading font-bold text-slate-900 text-base">Catat Peminjaman Perangkat Lab</h3>
+            <button onclick="closeModal('peminjaman')" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form id="form-peminjaman" onsubmit="saveLoan(event)" class="space-y-3 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Nama Peminjam *</label>
+                <input type="text" id="loan-borrower-name" required placeholder="Nama Siswa / Guru..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Peranan / Kelas *</label>
+                <input type="text" id="loan-borrower-role" required placeholder="Contoh: XII TKJ 1 / Guru Mapel Produktif" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Barang / Alat yang Dipinjam *</label>
+                <input type="text" id="loan-item-name" required placeholder="Contoh: Crimping Tool & Cable Tester / Router Board Mikrotik" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jumlah Unit *</label>
+                    <input type="number" id="loan-qty" min="1" required value="1" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Tanggal Jatuh Tempo *</label>
+                    <input type="date" id="loan-due-date" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Keperluan Peminjaman</label>
+                <input type="text" id="loan-purpose" placeholder="Praktikum Mandiri / Kunjungan UKK..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal('peminjaman')" class="px-3.5 py-2 border border-slate-300 rounded-xl font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold shadow-sm">Simpan Peminjaman</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 3: ADD JURNAL -->
+<div id="modal-journal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-heading font-bold text-slate-900 text-base">Entri Jurnal Praktik Komputer</h3>
+            <button onclick="closeModal('journal')" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form id="form-journal" onsubmit="saveJournal(event)" class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Tanggal Praktik *</label>
+                    <input type="date" id="journal-date" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Ruang Lab *</label>
+                    <select id="journal-lab" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                        <option value="Lab Komputer 1 (53 m²)">Lab Komputer 1 (53 m²)</option>
+                        <option value="Lab Komputer 2 (51 m²)">Lab Komputer 2 (51 m²)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Guru / Instruktur *</label>
+                    <input type="text" id="journal-teacher" required placeholder="Nama Guru Pengampu..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Mata Pelajaran / Kelas *</label>
+                    <input type="text" id="journal-subject" required placeholder="ASJ / XI TKJ 2..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Materi Praktikum *</label>
+                <input type="text" id="journal-topic" required placeholder="Materi / Modul Pembelajaran..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Catatan Kejadian / Kendala Alat</label>
+                <textarea id="journal-notes" rows="2" placeholder="Catatan kondisi PC, jaringan, atau kendala selama praktik..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:outline-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Foto Dokumentasi Kegiatan (Opsional)</label>
+                <input type="file" id="journal-photo-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal('journal')" class="px-3.5 py-2 border border-slate-300 rounded-xl font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-semibold shadow-sm">Simpan Jurnal</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 4: ADD PENGADAAN -->
+<div id="modal-pengadaan" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="font-heading font-bold text-slate-900 text-base">Usulan Pengadaan / Perbaikan Alat</h3>
+            <button onclick="closeModal('pengadaan')" class="p-1 rounded-lg text-slate-400 hover:bg-slate-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <form id="form-pengadaan" onsubmit="savePengadaan(event)" class="space-y-3 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Nama Barang / Komponen *</label>
+                <input type="text" id="pengadaan-item-name" required placeholder="Contoh: SSD NVMe 512GB / Switch Gigabit 24 Port" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Lokasi Lab *</label>
+                    <select id="pengadaan-location" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="Lab Komputer 1 (53 m²)">Lab Komputer 1 (53 m²)</option>
+                        <option value="Lab Komputer 2 (51 m²)">Lab Komputer 2 (51 m²)</option>
+                        <option value="Umum / Ruang Server">Umum / Ruang Server</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Jumlah Disusulkan *</label>
+                    <input type="number" id="pengadaan-qty" min="1" value="1" required class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Estimasi Biaya Total (Rp)</label>
+                <input type="number" id="pengadaan-estimated-cost" placeholder="Contoh: 1500000" class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Alasan Pengajuan & Spesifikasi Detail *</label>
+                <textarea id="pengadaan-reason" rows="3" required placeholder="Guna mengganti komponen PC Server yang mengalami rusak berat..." class="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-700 mb-1">Foto Bukti Perangkat / Kerusakan (Maks 10MB)</label>
+                <input type="file" id="pengadaan-photo-input" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100">
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+                <button type="button" onclick="closeModal('pengadaan')" class="px-3.5 py-2 border border-slate-300 rounded-xl font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-semibold shadow-sm">Kirim Usulan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL 5: PDF VIEWER MODAL -->
+<div id="modal-pdf-viewer" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+    <div class="bg-white rounded-2xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="flex items-center justify-between p-4 bg-slate-900 text-white border-b border-slate-800">
+            <h3 class="font-heading font-bold text-sm sm:text-base truncate" id="modal-pdf-title">Viewer SOP / Dokumen PDF</h3>
+            <button onclick="closeModal('pdf-viewer')" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="flex-1 bg-slate-100 relative">
+            <iframe id="modal-pdf-iframe" class="w-full h-full border-0"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 6: IMAGE PREVIEW MODAL -->
+<div id="modal-image-preview" class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeModal('image-preview')">
+    <div class="relative max-w-3xl w-full max-h-[90vh] flex items-center justify-center" onclick="event.stopPropagation()">
+        <img id="modal-preview-img-src" src="" class="max-w-full max-h-[85vh] rounded-2xl shadow-2xl object-contain">
+        <button onclick="closeModal('image-preview')" class="absolute -top-4 -right-4 bg-white text-slate-800 rounded-full p-2 shadow-lg hover:bg-slate-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+    </div>
+</div>
+
+<!-- PRINT ONLY CONTAINER (FM-SAR-07 STANDARDS) -->
+<div class="print-only print-container p-6 bg-white text-black font-sans">
+    <div class="border-b-2 border-black pb-3 mb-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="text-3xl font-bold">💻</div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight uppercase">SMKS PEMUDA 3 KESAMBEN BLITAR</h1>
+                <h2 class="text-base font-semibold">LABORATORIUM & WORKSHOP KOMPUTER</h2>
+                <p class="text-xs">Jl. Raya Kesamben No. 03, Kesamben, Kab. Blitar, Jawa Timur</p>
+            </div>
+        </div>
+        <div class="text-right text-xs">
+            <p class="font-bold border border-black px-2 py-1 inline-block">FM-SAR-07 Rev: 00</p>
+            <p class="mt-1">Tanggal Cetak: <span id="print-date-label">12/08/2026</span></p>
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <h2 id="print-doc-title" class="text-lg font-bold uppercase underline">LAPORAN REKAPITULASI INVENTARIS SARANA PRASARANA LAB KOMPUTER</h2>
+        <p class="text-xs">Tahun Ajaran 2025/2026 & 2026/2027</p>
+    </div>
+
+    <div id="print-table-area" class="mb-6"></div>
+
+    <div class="text-xs mb-6">
+        <h4 class="font-bold">Catatan Verifikasi & Evaluasi Ka. Lab Komputer:</h4>
+        <div id="print-summary-notes-area" class="p-2 border border-slate-400 min-h-[40px] mt-1 text-slate-800"></div>
+    </div>
+
+    <!-- OFFICIAL SIGNATURE BLOCK -->
+    <div class="grid grid-cols-3 text-center text-xs mt-12 gap-4">
+        <div>
+            <p>Mengetahui,</p>
+            <p class="font-bold">Kepala Sekolah SMKS Pemuda 3 Kesamben</p>
+            <div class="h-16"></div>
+            <p id="print-sig-kepsek-name" class="font-bold underline">(..............................................)</p>
+            <p id="print-sig-kepsek-nip">NIP/NIY. -</p>
+        </div>
+        <div>
+            <p>Disetujui,</p>
+            <p class="font-bold">Waka Sarana Prasarana</p>
+            <div class="h-16"></div>
+            <p id="print-sig-waka-name" class="font-bold underline">(..............................................)</p>
+            <p id="print-sig-waka-nip">NIP/NIY. -</p>
+        </div>
+        <div>
+            <p>Kesamben, <span id="print-sig-date">12 Agustus 2026</span></p>
+            <p class="font-bold">Kepala Lab. Komputer</p>
+            <div class="h-16"></div>
+            <p id="print-sig-kalab-name" class="font-bold underline">(..............................................)</p>
+            <p id="print-sig-kalab-nip">NIP/NIY. -</p>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ==========================================================================
+   SIM-LAB ESTEMUDA - Core JavaScript Application Engine
+   ========================================================================== */
+
+// --- GLOBAL STATE STORAGE KEYS ---
+const STORAGE_KEYS = {
+    LAB1: 'sim_lab_estemuda_lab1',
+    LAB2: 'sim_lab_estemuda_lab2',
+    LOANS: 'sim_lab_estemuda_loans',
+    JOURNALS: 'sim_lab_estemuda_journals',
+    PENGADAAN: 'sim_lab_estemuda_pengadaan',
+    SIGNATORIES: 'sim_lab_estemuda_signatories',
+    SUMMARY_NOTES: 'sim_lab_estemuda_summary_notes',
+    PDF_FILES: 'sim_lab_estemuda_pdf_files'
+};
+
+// --- INITIAL DEFAULT MOCK DATA ---
+const DEFAULT_LAB1_ITEMS = [
+    { id: 'l1-1', name: 'PC Client Lab Kom 1 (30 Unit)', specs: 'Intel Core i5 Gen 10, RAM 16GB DDR4, SSD 512GB NVMe, Monitor 22"', unit: 'Unit', good: 28, bad: 2, notes: 'Digunakan untuk praktikum TKJ & RPL' },
+    { id: 'l1-2', name: 'PC Server Utama Lab 1', specs: 'Intel Xeon E-2224, RAM 32GB ECC, 2x1TB SSD RAID 1', unit: 'Unit', good: 1, bad: 0, notes: 'Server CBT & Router Local' },
+    { id: 'l1-3', name: 'Switch Manageable Cisco 24 Port', specs: 'Cisco Catalyst 2960 Series Gigabit', unit: 'Unit', good: 2, bad: 0, notes: 'Rackmount Cabinet Utama' },
+    { id: 'l1-4', name: 'Meja Komputer Lengkap 30 Slot', specs: 'Bahan Kayu Particle Board Lapis HPL + Lubang Kabel', unit: 'Set', good: 30, bad: 0, notes: 'Kapasitas 30 Siswa' }
+];
+
+const DEFAULT_LAB2_ITEMS = [
+    { id: 'l2-1', name: 'PC Client Lab Kom 2 (30 Unit)', specs: 'AMD Ryzen 5 5600G, RAM 16GB DDR4, SSD 512GB, Monitor 24"', unit: 'Unit', good: 29, bad: 1, notes: 'Lab Desain Grafis & Pemrograman' },
+    { id: 'l2-2', name: 'PC Server Server CBT Lab 2', specs: 'Intel Core i7 12700, RAM 32GB, NVMe 1TB', unit: 'Unit', good: 1, bad: 0, notes: 'Kondisi Prima' },
+    { id: 'l2-3', name: 'Access Point TP-Link Archer AC1200', specs: 'Dual Band Gigabit Wi-Fi Access Point', unit: 'Unit', good: 2, bad: 0, notes: 'Terpasang di Plafon Lab' }
+];
+
+const DEFAULT_LOANS = [
+    { id: 'loan-1', borrowerName: 'Ahmad Fauzi', role: 'XII TKJ 1', item: 'Crimping Tool & Cable Tester', qty: 2, date: '2026-08-10', dueDate: '2026-08-15', status: 'DIPINJAM', purpose: 'Praktikum Pengabelan LAN' }
+];
+
+const DEFAULT_JOURNALS = [
+    { id: 'j-1', date: '2026-08-11', lab: 'Lab Komputer 1 (53 m²)', teacher: 'Budi Santoso, S.Kom.', subject: 'Administrasi Sistem Jaringan / XII TKJ', topic: 'Konfigurasi Web Server & DNS Debian 11', notes: 'Semua unit berjalan lancar, PC-04 monitor sempat flicker.', photo: null }
+];
+
+const DEFAULT_PENGADAAN = [
+    { id: 'p-1', name: 'SSD NVMe 512GB V-Gen Tsunami', location: 'Lab Komputer 1 (53 m²)', qty: 2, cost: 1100000, reason: 'Penggantian drive PC-02 & PC-15 yang bad sector.', photo: null, status: 'DIAJUKAN' }
+];
+
+// --- APP INITIALIZATION ---
+window.onload = function() {
+    initDefaultData();
+    loadSignatories();
+    loadSummaryNotes();
+    renderAll();
+    
+    // Set current date in signature
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'Long', year: 'numeric' });
+    document.getElementById('summary-verif-date').innerText = dateStr;
+    document.getElementById('print-date-label').innerText = dateStr;
+    document.getElementById('print-sig-date').innerText = dateStr;
+};
+
+function initDefaultData() {
+    if (!localStorage.getItem(STORAGE_KEYS.LAB1)) {
+        localStorage.setItem(STORAGE_KEYS.LAB1, JSON.stringify(DEFAULT_LAB1_ITEMS));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.LAB2)) {
+        localStorage.setItem(STORAGE_KEYS.LAB2, JSON.stringify(DEFAULT_LAB2_ITEMS));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.LOANS)) {
+        localStorage.setItem(STORAGE_KEYS.LOANS, JSON.stringify(DEFAULT_LOANS));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.JOURNALS)) {
+        localStorage.setItem(STORAGE_KEYS.JOURNALS, JSON.stringify(DEFAULT_JOURNALS));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.PENGADAAN)) {
+        localStorage.setItem(STORAGE_KEYS.PENGADAAN, JSON.stringify(DEFAULT_PENGADAAN));
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.PDF_FILES)) {
+        localStorage.setItem(STORAGE_KEYS.PDF_FILES, JSON.stringify({}));
+    }
+}
+
+function getData(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch(e) {
+        return [];
+    }
+}
+
+function saveData(key, data) {
+    try {
+        localStorage.setItem(key, JSON.stringify(data));
+        return true;
+    } catch(e) {
+        showToast('Storage Browser Penuh! Gagal menyimpan file besar.', 'error');
+        return false;
+    }
+}
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-emerald-600' : (type === 'error' ? 'bg-rose-600' : 'bg-slate-800');
+    toast.className = `${bgColor} text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center justify-between gap-3 pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0`;
+    
+    toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white">&times;</button>
+    `;
+    
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+    }, 10);
+
+    setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+}
+
+function toggleMobileMenu(forceState) {
+    const sidebar = document.getElementById('main-sidebar');
+    const overlay = document.getElementById('mobile-drawer-overlay');
+    
+    const isHidden = sidebar.classList.contains('-translate-x-full');
+    const show = forceState !== undefined ? forceState : isHidden;
+    
+    if (show) {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+    } else {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+    }
+}
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-teal-50', 'text-teal-700', 'font-semibold');
+        btn.classList.add('text-slate-600');
+    });
+
+    const activeTab = document.getElementById(`tab-${tabId}`);
+    if (activeTab) activeTab.classList.remove('hidden');
+
+    const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+    if (activeBtn) {
+        activeBtn.classList.add('bg-teal-50', 'text-teal-700', 'font-semibold');
+        activeBtn.classList.remove('text-slate-600');
+    }
+
+    toggleMobileMenu(false);
+}
+
+function saveSignatories() {
+    const data = {
+        kalabName: document.getElementById('input-kalab-name').value,
+        kalabNip: document.getElementById('input-kalab-nip').value,
+        kepsekName: document.getElementById('input-kepsek-name').value,
+        kepsekNip: document.getElementById('input-kepsek-nip').value,
+        wakaName: document.getElementById('input-waka-name').value,
+        wakaNip: document.getElementById('input-waka-nip').value,
+    };
+    saveData(STORAGE_KEYS.SIGNATORIES, data);
+    updateSignatoriesDisplay(data);
+}
+
+function loadSignatories() {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIGNATORIES)) || {
+        kalabName: 'Tim Laboratorium Komputer',
+        kalabNip: 'NIY. 2025.07.001',
+        kepsekName: 'Drs. H. M. Yasin, M.Pd.',
+        kepsekNip: 'NIP. 19680512 199403 1 008',
+        wakaName: 'Rudi Hermawan, S.ST.',
+        wakaNip: 'NIP. 19820915 201001 1 012'
+    };
+
+    document.getElementById('input-kalab-name').value = data.kalabName || '';
+    document.getElementById('input-kalab-nip').value = data.kalabNip || '';
+    document.getElementById('input-kepsek-name').value = data.kepsekName || '';
+    document.getElementById('input-kepsek-nip').value = data.kepsekNip || '';
+    document.getElementById('input-waka-name').value = data.wakaName || '';
+    document.getElementById('input-waka-nip').value = data.wakaNip || '';
+
+    updateSignatoriesDisplay(data);
+}
+
+function updateSignatoriesDisplay(data) {
+    document.getElementById('header-kalab-label').innerText = data.kalabName || 'Tim Lab Komputer';
+    document.getElementById('summary-kalab-display-name').innerText = data.kalabName || 'Kepala Lab Komputer';
+
+    // Print signatures
+    document.getElementById('print-sig-kalab-name').innerText = data.kalabName ? `( ${data.kalabName} )` : '(..............................................)';
+    document.getElementById('print-sig-kalab-nip').innerText = data.kalabNip ? `NIP/NIY. ${data.kalabNip}` : 'NIP/NIY. -';
+
+    document.getElementById('print-sig-kepsek-name').innerText = data.kepsekName ? `( ${data.kepsekName} )` : '(..............................................)';
+    document.getElementById('print-sig-kepsek-nip').innerText = data.kepsekNip ? `NIP/NIY. ${data.kepsekNip}` : 'NIP/NIY. -';
+
+    document.getElementById('print-sig-waka-name').innerText = data.wakaName ? `( ${data.wakaName} )` : '(..............................................)';
+    document.getElementById('print-sig-waka-nip').innerText = data.wakaNip ? `NIP/NIY. ${data.wakaNip}` : 'NIP/NIY. -';
+}
+
+function saveSummaryNotes() {
+    const val = document.getElementById('input-summary-notes').value;
+    localStorage.setItem(STORAGE_KEYS.SUMMARY_NOTES, val);
+    document.getElementById('print-summary-notes-area').innerText = val || 'Tidak ada catatan khusus.';
+}
+
+function loadSummaryNotes() {
+    const notes = localStorage.getItem(STORAGE_KEYS.SUMMARY_NOTES) || 'Peralatan utama Lab Komputer 1 dan Lab Komputer 2 dalam kondisi siap pakai untuk kegiatan KBM praktikum serta Uji Kompetensi Keahlian (UKK). Dilakukan perawatan berkala setiap bulan.';
+    document.getElementById('input-summary-notes').value = notes;
+    document.getElementById('print-summary-notes-area').innerText = notes;
+}
+
+function renderAll() {
+    renderDashboard();
+    renderLab1Table();
+    renderLab2Table();
+    renderLoansTable();
+    renderJournals();
+    renderPengadaan();
+    renderSopCards();
+}
+
+function renderDashboard() {
+    const lab1 = getData(STORAGE_KEYS.LAB1);
+    const lab2 = getData(STORAGE_KEYS.LAB2);
+    const loans = getData(STORAGE_KEYS.LOANS);
+    const journals = getData(STORAGE_KEYS.JOURNALS);
+    const pengadaan = getData(STORAGE_KEYS.PENGADAAN);
+
+    // Compute stats
+    const l1Units = lab1.reduce((acc, curr) => acc + (parseInt(curr.good) || 0) + (parseInt(curr.bad) || 0), 0);
+    const l1Good = lab1.reduce((acc, curr) => acc + (parseInt(curr.good) || 0), 0);
+    const l1Bad = lab1.reduce((acc, curr) => acc + (parseInt(curr.bad) || 0), 0);
+
+    const l2Units = lab2.reduce((acc, curr) => acc + (parseInt(curr.good) || 0) + (parseInt(curr.bad) || 0), 0);
+    const l2Good = lab2.reduce((acc, curr) => acc + (parseInt(curr.good) || 0), 0);
+    const l2Bad = lab2.reduce((acc, curr) => acc + (parseInt(curr.bad) || 0), 0);
+
+    const activeLoans = loans.filter(l => l.status === 'DIPINJAM').length;
+
+    document.getElementById('stat-total-lab1').innerText = l1Units;
+    document.getElementById('stat-total-lab2').innerText = l2Units;
+    document.getElementById('stat-total-borrowed').innerText = activeLoans;
+    document.getElementById('stat-total-need-action').innerText = (l1Bad + l2Bad);
+    document.getElementById('badge-pinjam-count').innerText = activeLoans;
+
+    // Summary box
+    document.getElementById('sum-lab1-types').innerText = `${lab1.length} jenis`;
+    document.getElementById('sum-lab1-units').innerText = `${l1Units} unit`;
+    document.getElementById('sum-lab1-good').innerText = `${l1Good} unit`;
+    document.getElementById('sum-lab1-bad').innerText = `${l1Bad} unit`;
+
+    document.getElementById('sum-lab2-types').innerText = `${lab2.length} jenis`;
+    document.getElementById('sum-lab2-units').innerText = `${l2Units} unit`;
+    document.getElementById('sum-lab2-good').innerText = `${l2Good} unit`;
+    document.getElementById('sum-lab2-bad').innerText = `${l2Bad} unit`;
+
+    document.getElementById('sum-active-loans').innerText = `${activeLoans} peminjaman`;
+    document.getElementById('sum-journal-entries').innerText = `${journals.length} entri`;
+    document.getElementById('sum-pengadaan-entries').innerText = `${pengadaan.length} usulan`;
+
+    const totalUnits = l1Units + l2Units;
+    const totalGood = l1Good + l2Good;
+    const goodPercent = totalUnits > 0 ? Math.round((totalGood / totalUnits) * 100) : 0;
+
+    document.getElementById('summary-narrative-text').innerHTML = `
+        Berdasarkan hasil pemeriksaan verifikasi sarana prasarana Laboratorium Komputer SMKS Pemuda 3 Kesamben Blitar, total unit terinventarisasi adalah <strong>${totalUnits} unit</strong> (${l1Units} unit pada Lab 1 & ${l2Units} unit pada Lab 2). 
+        Tingkat kelayakan alat dalam kondisi baik mencapai <strong class="text-emerald-700">${goodPercent}% (${totalGood} unit)</strong>, sedangkan sejumlah <strong class="text-rose-600">${l1Bad + l2Bad} unit</strong> teridentifikasi memerlukan tindakan perbaikan/maintenance atau pengajuan penggantian unit.
+    `;
+
+    renderDashboardUploadedItems();
+}
+
+function renderDashboardUploadedItems() {
+    const lab1 = getData(STORAGE_KEYS.LAB1).map(i => ({ ...i, lab: 'Lab Komputer 1 (53 m²)' }));
+    const lab2 = getData(STORAGE_KEYS.LAB2).map(i => ({ ...i, lab: 'Lab Komputer 2 (51 m²)' }));
+    
+    let combined = [...lab1, ...lab2];
+
+    const filterLab = document.getElementById('dashboard-category-filter').value;
+    const search = document.getElementById('dashboard-inventory-search').value.toLowerCase();
+
+    if (filterLab === 'LAB1') combined = combined.filter(i => i.lab.includes('1'));
+    if (filterLab === 'LAB2') combined = combined.filter(i => i.lab.includes('2'));
+
+    if (search) {
+        combined = combined.filter(i => i.name.toLowerCase().includes(search) || (i.specs && i.specs.toLowerCase().includes(search)));
+    }
+
+    const tbody = document.getElementById('dashboard-uploaded-items-body');
+    if (combined.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Tidak ada data inventaris ditemukan.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = combined.map((item, index) => `
+        <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-2.5 text-center text-slate-400 font-medium">${index + 1}</td>
+            <td class="p-2.5 font-semibold text-slate-700">${item.lab}</td>
+            <td class="p-2.5 font-bold text-slate-900">${item.name}</td>
+            <td class="p-2.5 text-slate-600">${item.specs || '-'}</td>
+            <td class="p-2.5 text-center font-bold text-slate-800">${(parseInt(item.good)||0) + (parseInt(item.bad)||0)} ${item.unit || 'Unit'}</td>
+            <td class="p-2.5 text-center font-bold text-emerald-600 bg-emerald-50/50">${item.good}</td>
+            <td class="p-2.5 text-center font-bold text-rose-600 bg-rose-50/50">${item.bad}</td>
+            <td class="p-2.5 text-slate-500">${item.notes || '-'}</td>
+        </tr>
+    `).join('');
+}
+
+function renderLab1Table() {
+    let items = getData(STORAGE_KEYS.LAB1);
+    const search = document.getElementById('search-lab1').value.toLowerCase();
+    const cond = document.getElementById('filter-lab1-condition').value;
+
+    if (search) items = items.filter(i => i.name.toLowerCase().includes(search) || (i.specs && i.specs.toLowerCase().includes(search)));
+    if (cond === 'BAIK') items = items.filter(i => parseInt(i.good) > 0);
+    if (cond === 'RUSAK') items = items.filter(i => parseInt(i.bad) > 0);
+
+    const tbody = document.getElementById('table-lab1-body');
+    if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Belum ada item di Lab Komputer 1.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = items.map((item, index) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-3 text-center text-slate-400 font-medium">${index + 1}</td>
+            <td class="p-3 font-bold text-slate-900">${item.name}</td>
+            <td class="p-3 text-slate-600">${item.specs || '-'}</td>
+            <td class="p-3 text-slate-500">${item.unit || 'Unit'}</td>
+            <td class="p-3 text-center font-bold text-slate-800">${(parseInt(item.good)||0) + (parseInt(item.bad)||0)}</td>
+            <td class="p-3 text-center font-bold text-emerald-600">${item.good}</td>
+            <td class="p-3 text-center font-bold text-rose-600">${item.bad}</td>
+            <td class="p-3 text-slate-500">${item.notes || '-'}</td>
+            <td class="p-3 no-print text-center">
+                <div class="flex items-center justify-center gap-1">
+                    <button onclick="editInventoryItem('lab1', '${item.id}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded">✏️</button>
+                    <button onclick="deleteInventoryItem('lab1', '${item.id}')" class="p-1 text-rose-600 hover:bg-rose-50 rounded">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderLab2Table() {
+    let items = getData(STORAGE_KEYS.LAB2);
+    const search = document.getElementById('search-lab2').value.toLowerCase();
+    const cond = document.getElementById('filter-lab2-condition').value;
+
+    if (search) items = items.filter(i => i.name.toLowerCase().includes(search) || (i.specs && i.specs.toLowerCase().includes(search)));
+    if (cond === 'BAIK') items = items.filter(i => parseInt(i.good) > 0);
+    if (cond === 'RUSAK') items = items.filter(i => parseInt(i.bad) > 0);
+
+    const tbody = document.getElementById('table-lab2-body');
+    if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-400">Belum ada item di Lab Komputer 2.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = items.map((item, index) => `
+        <tr class="hover:bg-slate-50">
+            <td class="p-3 text-center text-slate-400 font-medium">${index + 1}</td>
+            <td class="p-3 font-bold text-slate-900">${item.name}</td>
+            <td class="p-3 text-slate-600">${item.specs || '-'}</td>
+            <td class="p-3 text-slate-500">${item.unit || 'Unit'}</td>
+            <td class="p-3 text-center font-bold text-slate-800">${(parseInt(item.good)||0) + (parseInt(item.bad)||0)}</td>
+            <td class="p-3 text-center font-bold text-emerald-600">${item.good}</td>
+            <td class="p-3 text-center font-bold text-rose-600">${item.bad}</td>
+            <td class="p-3 text-slate-500">${item.notes || '-'}</td>
+            <td class="p-3 no-print text-center">
+                <div class="flex items-center justify-center gap-1">
+                    <button onclick="editInventoryItem('lab2', '${item.id}')" class="p-1 text-blue-600 hover:bg-blue-50 rounded">✏️</button>
+                    <button onclick="deleteInventoryItem('lab2', '${item.id}')" class="p-1 text-rose-600 hover:bg-rose-50 rounded">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function openModal(modalType, targetLab = 'lab1') {
+    if (modalType === 'inventory') {
+        document.getElementById('form-inventory').reset();
+        document.getElementById('inv-item-id').value = '';
+        document.getElementById('inv-item-lab').value = targetLab;
+        document.getElementById('modal-inventory-title').innerText = 'Tambah Barang Inventaris Baru';
+        document.getElementById('modal-inventory').classList.remove('hidden');
+    } else {
+        const modal = document.getElementById(`modal-${modalType}`);
+        if (modal) modal.classList.remove('hidden');
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(`modal-${modalId}`);
+    if (modal) modal.classList.add('hidden');
+}
+
+function saveInventoryItem(e) {
+    e.preventDefault();
+    const id = document.getElementById('inv-item-id').value;
+    const lab = document.getElementById('inv-item-lab').value; // 'lab1' or 'lab2'
+    const name = document.getElementById('inv-item-name').value;
+    const specs = document.getElementById('inv-item-specs').value;
+    const unit = document.getElementById('inv-item-unit').value || 'Unit';
+    const good = parseInt(document.getElementById('inv-item-good').value) || 0;
+    const bad = parseInt(document.getElementById('inv-item-bad').value) || 0;
+    const notes = document.getElementById('inv-item-notes').value;
+
+    const storageKey = lab === 'lab1' ? STORAGE_KEYS.LAB1 : STORAGE_KEYS.LAB2;
+    let items = getData(storageKey);
+
+    if (id) {
+        items = items.map(item => item.id === id ? { id, name, specs, unit, good, bad, notes } : item);
+        showToast('Data barang berhasil diperbarui!');
+    } else {
+        const newItem = { id: 'item-' + Date.now(), name, specs, unit, good, bad, notes };
+        items.push(newItem);
+        showToast('Barang baru berhasil ditambahkan!');
+    }
+
+    saveData(storageKey, items);
+    closeModal('inventory');
+    renderAll();
+}
+
+function editInventoryItem(lab, itemId) {
+    const storageKey = lab === 'lab1' ? STORAGE_KEYS.LAB1 : STORAGE_KEYS.LAB2;
+    const items = getData(storageKey);
+    const item = items.find(i => i.id === itemId);
+    if (!item) return;
+
+    document.getElementById('inv-item-id').value = item.id;
+    document.getElementById('inv-item-lab').value = lab;
+    document.getElementById('inv-item-name').value = item.name;
+    document.getElementById('inv-item-specs').value = item.specs || '';
+    document.getElementById('inv-item-unit').value = item.unit || 'Unit';
+    document.getElementById('inv-item-good').value = item.good || 0;
+    document.getElementById('inv-item-bad').value = item.bad || 0;
+    document.getElementById('inv-item-notes').value = item.notes || '';
+
+    document.getElementById('modal-inventory-title').innerText = 'Edit Barang Inventaris';
+    document.getElementById('modal-inventory').classList.remove('hidden');
+}
+
+function deleteInventoryItem(lab, itemId) {
+    if (!confirm('Apakah Anda yakin ingin menghapus barang ini?')) return;
+    const storageKey = lab === 'lab1' ? STORAGE_KEYS.LAB1 : STORAGE_KEYS.LAB2;
+    let items = getData(storageKey);
+    items = items.filter(i => i.id !== itemId);
+    saveData(storageKey, items);
+    showToast('Barang berhasil dihapus.');
+    renderAll();
+}
+
+function renderLoansTable() {
+    const loans = getData(STORAGE_KEYS.LOANS);
+    const tbody = document.getElementById('table-peminjaman-body');
+
+    if (loans.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">Belum ada riwayat peminjaman.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = loans.map((loan, index) => {
+        const isBorrowed = loan.status === 'DIPINJAM';
+        const badgeClass = isBorrowed ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800';
+        return `
+            <tr class="hover:bg-slate-50">
+                <td class="p-3 text-center text-slate-400 font-medium">${index + 1}</td>
+                <td class="p-3">
+                    <div class="font-bold text-slate-900">${loan.borrowerName}</div>
+                    <div class="text-[11px] text-slate-500">${loan.role}</div>
+                </td>
+                <td class="p-3 font-semibold text-slate-800">${loan.item}</td>
+                <td class="p-3 text-center font-bold">${loan.qty} Unit</td>
+                <td class="p-3 text-slate-600">${loan.date}</td>
+                <td class="p-3 text-slate-600">${loan.dueDate}</td>
+                <td class="p-3 text-center">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${badgeClass}">${loan.status}</span>
+                </td>
+                <td class="p-3 no-print text-center">
+                    ${isBorrowed ? `
+                        <button onclick="returnLoan('${loan.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-2.5 py-1 rounded-lg text-[11px] shadow-sm touch-active">
+                            Kembalikan
+                        </button>
+                    ` : '<span class="text-emerald-600 text-[11px] font-semibold">Selesai</span>'}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function saveLoan(e) {
+    e.preventDefault();
+    const name = document.getElementById('loan-borrower-name').value;
+    const role = document.getElementById('loan-borrower-role').value;
+    const item = document.getElementById('loan-item-name').value;
+    const qty = parseInt(document.getElementById('loan-qty').value) || 1;
+    const dueDate = document.getElementById('loan-due-date').value;
+    const purpose = document.getElementById('loan-purpose').value;
+
+    const loans = getData(STORAGE_KEYS.LOANS);
+    const newLoan = {
+        id: 'loan-' + Date.now(),
+        borrowerName: name,
+        role: role,
+        item: item,
+        qty: qty,
+        date: new Date().toISOString().split('T')[0],
+        dueDate: dueDate,
+        status: 'DIPINJAM',
+        purpose: purpose
+    };
+
+    loans.unshift(newLoan);
+    saveData(STORAGE_KEYS.LOANS, loans);
+    closeModal('peminjaman');
+    showToast('Catatan peminjaman berhasil dibuat!');
+    renderAll();
+}
+
+function returnLoan(loanId) {
+    let loans = getData(STORAGE_KEYS.LOANS);
+    loans = loans.map(l => l.id === loanId ? { ...l, status: 'DIKEMBALIKAN' } : l);
+    saveData(STORAGE_KEYS.LOANS, loans);
+    showToast('Barang berhasil dikembalikan!');
+    renderAll();
+}
+
+function renderJournals() {
+    const journals = getData(STORAGE_KEYS.JOURNALS);
+    const container = document.getElementById('jurnal-cards-container');
+
+    if (journals.length === 0) {
+        container.innerHTML = `<div class="col-span-2 p-8 text-center text-slate-400 bg-white rounded-xl border border-slate-200">Belum ada jurnal praktik.</div>`;
+        return;
+    }
+
+    container.innerHTML = journals.map(j => `
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2 relative flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                    <span class="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">${j.lab}</span>
+                    <span class="text-[11px] text-slate-400">${j.date}</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-sm">${j.topic}</h4>
+                <p class="text-xs text-slate-600 mt-1"><strong class="text-slate-800">Guru:</strong> ${j.teacher} | <strong class="text-slate-800">Mapel/Kelas:</strong> ${j.subject}</p>
+                ${j.notes ? `<p class="text-xs text-slate-500 bg-slate-50 p-2 rounded-lg mt-2"><strong>Catatan:</strong> ${j.notes}</p>` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                ${j.photo ? `
+                    <button onclick="previewImage('${j.photo}')" class="text-xs font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                        🖼️ Lihat Foto Kegiatan
+                    </button>
+                ` : '<span class="text-[11px] text-slate-400">Tanpa Foto</span>'}
+                <button onclick="deleteJournal('${j.id}')" class="text-xs text-rose-500 hover:text-rose-700">Hapus</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function saveJournal(e) {
+    e.preventDefault();
+    const date = document.getElementById('journal-date').value;
+    const lab = document.getElementById('journal-lab').value;
+    const teacher = document.getElementById('journal-teacher').value;
+    const subject = document.getElementById('journal-subject').value;
+    const topic = document.getElementById('journal-topic').value;
+    const notes = document.getElementById('journal-notes').value;
+    const fileInput = document.getElementById('journal-photo-input');
+
+    const createAndSave = (photoData = null) => {
+        const journals = getData(STORAGE_KEYS.JOURNALS);
+        journals.unshift({
+            id: 'j-' + Date.now(),
+            date, lab, teacher, subject, topic, notes, photo: photoData
+        });
+        saveData(STORAGE_KEYS.JOURNALS, journals);
+        closeModal('journal');
+        showToast('Jurnal praktikum berhasil disimpan!');
+        renderAll();
+    };
+
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            createAndSave(evt.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        createAndSave();
+    }
+}
+
+function deleteJournal(id) {
+    if (!confirm('Hapus jurnal ini?')) return;
+    let journals = getData(STORAGE_KEYS.JOURNALS);
+    journals = journals.filter(j => j.id !== id);
+    saveData(STORAGE_KEYS.JOURNALS, journals);
+    showToast('Jurnal dihapus.');
+    renderAll();
+}
+
+function renderPengadaan() {
+    const pengadaan = getData(STORAGE_KEYS.PENGADAAN);
+    const container = document.getElementById('pengadaan-cards-container');
+
+    if (pengadaan.length === 0) {
+        container.innerHTML = `<div class="col-span-3 p-8 text-center text-slate-400 bg-white rounded-xl border border-slate-200">Belum ada usulan pengadaan.</div>`;
+        return;
+    }
+
+    container.innerHTML = pengadaan.map(p => `
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded uppercase bg-amber-100 text-amber-800">${p.status || 'DIAJUKAN'}</span>
+                    <span class="text-xs font-bold text-amber-700">Rp ${(parseInt(p.cost)||0).toLocaleString('id-ID')}</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-sm mt-2">${p.name}</h4>
+                <p class="text-xs text-slate-500">${p.location} • <strong class="text-slate-700">${p.qty} Unit</strong></p>
+                <p class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg mt-2 leading-relaxed">${p.reason}</p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                ${p.photo ? `
+                    <button onclick="previewImage('${p.photo}')" class="text-xs font-semibold text-amber-600 hover:underline">
+                        📷 Lihat Foto Bukti
+                    </button>
+                ` : '<span class="text-[11px] text-slate-400">Tidak ada foto</span>'}
+                <button onclick="deletePengadaan('${p.id}')" class="text-xs text-rose-500 hover:text-rose-700">Hapus</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function savePengadaan(e) {
+    e.preventDefault();
+    const name = document.getElementById('pengadaan-item-name').value;
+    const location = document.getElementById('pengadaan-location').value;
+    const qty = parseInt(document.getElementById('pengadaan-qty').value) || 1;
+    const cost = parseInt(document.getElementById('pengadaan-estimated-cost').value) || 0;
+    const reason = document.getElementById('pengadaan-reason').value;
+    const fileInput = document.getElementById('pengadaan-photo-input');
+
+    const saveObj = (photoData = null) => {
+        const list = getData(STORAGE_KEYS.PENGADAAN);
+        list.unshift({
+            id: 'p-' + Date.now(),
+            name, location, qty, cost, reason, photo: photoData, status: 'DIAJUKAN'
+        });
+        saveData(STORAGE_KEYS.PENGADAAN, list);
+        closeModal('pengadaan');
+        showToast('Usulan pengadaan berhasil dikirim!');
+        renderAll();
+    };
+
+    if (fileInput.files && fileInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            saveObj(evt.target.result);
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        saveObj();
+    }
+}
+
+function deletePengadaan(id) {
+    if (!confirm('Hapus usulan ini?')) return;
+    let list = getData(STORAGE_KEYS.PENGADAAN);
+    list = list.filter(p => p.id !== id);
+    saveData(STORAGE_KEYS.PENGADAAN, list);
+    showToast('Usulan dihapus.');
+    renderAll();
+}
+
+function uploadSopPdf(type, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+        showToast('Mohon pilih file dalam format PDF!', 'error');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const pdfFiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PDF_FILES)) || {};
+        pdfFiles[type] = {
+            name: file.name,
+            data: e.target.result
+        };
+        saveData(STORAGE_KEYS.PDF_FILES, pdfFiles);
+        showToast('File PDF SOP berhasil diunggah!');
+        renderSopCards();
+    };
+    reader.readAsDataURL(file);
+}
+
+function renderSopCards() {
+    const pdfFiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PDF_FILES)) || {};
+
+    const types = [
+        { id: 'jadwal', badge: 'badge-jadwal-status', desc: 'info-jadwal-desc', action: 'action-jadwal-container', label: 'Jadwal Penggunaan Lab' },
+        { id: 'sop_alat', badge: 'badge-sop-alat-status', desc: 'info-sop-alat-desc', action: 'action-sop-alat-container', label: 'SOP Penggunaan Alat' },
+        { id: 'sop_lab', badge: 'badge-sop-lab-status', desc: 'info-sop-lab-desc', action: 'action-sop-lab-container', label: 'SOP Penggunaan Workshop / Lab' }
+    ];
+
+    types.forEach(t => {
+        const fileObj = pdfFiles[t.id];
+        const badgeEl = document.getElementById(t.badge);
+        const descEl = document.getElementById(t.desc);
+        const actionEl = document.getElementById(t.action);
+
+        if (fileObj) {
+            if (badgeEl) { badgeEl.innerText = 'Tersedia'; badgeEl.className = 'text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full'; }
+            if (descEl) descEl.innerText = `File: ${fileObj.name}`;
+            if (actionEl) {
+                actionEl.innerHTML = `
+                    <button onclick="viewPdf('${t.id}')" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold py-1.5 px-2 rounded-lg text-center transition-all touch-active">
+                        👁️ Buka PDF
+                    </button>
+                    <button onclick="deletePdf('${t.id}')" class="bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs p-1.5 rounded-lg">
+                        🗑️
+                    </button>
+                `;
+            }
+        } else {
+            if (badgeEl) { badgeEl.innerText = 'Belum Ada'; badgeEl.className = 'text-[10px] font-semibold text-slate-400'; }
+            if (descEl) descEl.innerText = 'File PDF belum diunggah.';
+            if (actionEl) {
+                actionEl.innerHTML = `
+                    <input type="file" id="upload-pdf-${t.id}" accept=".pdf" onchange="uploadSopPdf('${t.id}', event)" class="hidden">
+                    <label for="upload-pdf-${t.id}" class="cursor-pointer flex-1 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold py-1.5 px-2 rounded-lg text-center transition-all touch-active">
+                        📤 Upload PDF
+                    </label>
+                `;
+            }
+        }
+    });
+
+    // Render SOP Upload Tab List
+    const uploadTabContainer = document.getElementById('upload-sop-list-container');
+    if (uploadTabContainer) {
+        uploadTabContainer.innerHTML = types.map(t => {
+            const f = pdfFiles[t.id];
+            return `
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-bold text-xs text-slate-700">${t.label}</span>
+                            <span class="text-[10px] ${f ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${f ? 'Tersedia' : 'Kosong'}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mb-3 truncate">${f ? f.name : 'Belum ada file PDF.'}</p>
+                    </div>
+                    <div>
+                        ${f ? `
+                            <div class="flex gap-2">
+                                <button onclick="viewPdf('${t.id}')" class="flex-1 bg-teal-600 text-white text-xs py-1.5 rounded-lg font-semibold">Buka PDF</button>
+                                <button onclick="deletePdf('${t.id}')" class="bg-rose-600 text-white text-xs px-2 rounded-lg">Hapus</button>
+                            </div>
+                        ` : `
+                            <input type="file" id="tab-upload-pdf-${t.id}" accept=".pdf" onchange="uploadSopPdf('${t.id}', event)" class="hidden">
+                            <label for="tab-upload-pdf-${t.id}" class="block bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-1.5 rounded-lg text-center cursor-pointer">
+                                + Unggah File PDF
+                            </label>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function viewPdf(type) {
+    const pdfFiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PDF_FILES)) || {};
+    const fileObj = pdfFiles[type];
+    if (!fileObj) {
+        showToast('File PDF tidak ditemukan!', 'error');
+        return;
+    }
+
+    document.getElementById('modal-pdf-title').innerText = fileObj.name;
+    document.getElementById('modal-pdf-iframe').src = fileObj.data;
+    document.getElementById('modal-pdf-viewer').classList.remove('hidden');
+}
+
+function deletePdf(type) {
+    if (!confirm('Hapus file PDF ini?')) return;
+    const pdfFiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PDF_FILES)) || {};
+    delete pdfFiles[type];
+    saveData(STORAGE_KEYS.PDF_FILES, pdfFiles);
+    showToast('File PDF berhasil dihapus.');
+    renderSopCards();
+}
+
+function previewImage(src) {
+    document.getElementById('modal-preview-img-src').src = src;
+    document.getElementById('modal-image-preview').classList.remove('hidden');
+}
+
+function handleExcelUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+        try {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const json = XLSX.utils.sheet_to_json(worksheet);
+
+            if (!json || json.length === 0) {
+                showToast('File Excel kosong atau format tidak valid!', 'error');
+                return;
+            }
+
+            let addedLab1 = 0, addedLab2 = 0;
+            const lab1 = getData(STORAGE_KEYS.LAB1);
+            const lab2 = getData(STORAGE_KEYS.LAB2);
+
+            json.forEach((row, idx) => {
+                const name = row['Nama Barang'] || row['Nama'] || row['Perangkat'] || `Barang Impor #${idx+1}`;
+                const specs = row['Spesifikasi'] || row['Specs'] || '';
+                const unit = row['Satuan'] || 'Unit';
+                const good = parseInt(row['Baik'] || row['Kondisi Baik'] || row['Jumlah']) || 0;
+                const bad = parseInt(row['Rusak'] || row['Kondisi Rusak']) || 0;
+                const notes = row['Keterangan'] || row['Ket'] || 'Diimpor dari Excel';
+                const labTarget = (row['Laboratorium'] || row['Lab'] || '').toString().toLowerCase();
+
+                const itemObj = { id: 'item-excel-' + Date.now() + '-' + idx, name, specs, unit, good, bad, notes };
+
+                if (labTarget.includes('2')) {
+                    lab2.push(itemObj);
+                    addedLab2++;
+                } else {
+                    lab1.push(itemObj);
+                    addedLab1++;
+                }
+            });
+
+            saveData(STORAGE_KEYS.LAB1, lab1);
+            saveData(STORAGE_KEYS.LAB2, lab2);
+
+            showToast(`Berhasil mengimpor ${addedLab1 + addedLab2} barang (${addedLab1} di Lab 1, ${addedLab2} di Lab 2)!`);
+            renderAll();
+        } catch (err) {
+            showToast('Gagal memproses file Excel: ' + err.message, 'error');
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function getLabTableHtml(labKey) {
+    const items = getData(labKey === 'lab1' ? STORAGE_KEYS.LAB1 : STORAGE_KEYS.LAB2);
+    const labTitle = labKey === 'lab1' ? 'Lab Komputer 1 (53 m²)' : 'Lab Komputer 2 (51 m²)';
+
+    return `
+        <table border="1" style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead>
+                <tr style="background-color:#f1f5f9;">
+                    <th style="padding:8px;">No</th>
+                    <th style="padding:8px;">Nama Barang / Perangkat</th>
+                    <th style="padding:8px;">Spesifikasi Detail</th>
+                    <th style="padding:8px;">Satuan</th>
+                    <th style="padding:8px;">Jumlah</th>
+                    <th style="padding:8px;">Baik</th>
+                    <th style="padding:8px;">Rusak</th>
+                    <th style="padding:8px;">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${items.map((i, idx) => `
+                    <tr>
+                        <td style="padding:6px; text-align:center;">${idx + 1}</td>
+                        <td style="padding:6px; font-weight:bold;">${i.name}</td>
+                        <td style="padding:6px;">${i.specs || '-'}</td>
+                        <td style="padding:6px;">${i.unit || 'Unit'}</td>
+                        <td style="padding:6px; text-align:center;">${(parseInt(i.good)||0) + (parseInt(i.bad)||0)}</td>
+                        <td style="padding:6px; text-align:center; color:green;">${i.good}</td>
+                        <td style="padding:6px; text-align:center; color:red;">${i.bad}</td>
+                        <td style="padding:6px;">${i.notes || '-'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function exportToDoc(title, tableHtml) {
+    const signatories = JSON.parse(localStorage.getItem(STORAGE_KEYS.SIGNATORIES)) || {};
+    const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><title>${title}</title><style>body{font-family:Arial,sans-serif;}</style></head>
+        <body>
+            <h2 style="text-align:center;">SMKS PEMUDA 3 KESAMBEN BLITAR</h2>
+            <h3 style="text-align:center;">${title}</h3>
+            <hr/>
+            ${tableHtml}
+            <br/><br/>
+            <table style="width:100%; text-align:center; font-size:12px;">
+                <tr>
+                    <td>Kepala Sekolah<br/><br/><br/><b>${signatories.kepsekName || 'Drs. H. M. Yasin, M.Pd.'}</b></td>
+                    <td>Waka Sarpras<br/><br/><br/><b>${signatories.wakaName || 'Rudi Hermawan, S.ST.'}</b></td>
+                    <td>Kepala Lab Komputer<br/><br/><br/><b>${signatories.kalabName || 'Tim Lab Komputer'}</b></td>
+                </tr>
+            </table>
+        </body>
+        </html>
+    `;
+
+    const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title}.doc`;
+    a.click();
+}
+
+function exportCategoryExcel(labKey) {
+    const items = getData(labKey === 'lab1' ? STORAGE_KEYS.LAB1 : STORAGE_KEYS.LAB2);
+    const worksheet = XLSX.utils.json_to_sheet(items.map((i, idx) => ({
+        'No': idx + 1,
+        'Nama Barang': i.name,
+        'Spesifikasi': i.specs,
+        'Satuan': i.unit,
+        'Jumlah Baik': i.good,
+        'Jumlah Rusak': i.bad,
+        'Keterangan': i.notes
+    })));
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, labKey.toUpperCase());
+    XLSX.writeFile(workbook, `Inventaris_${labKey.toUpperCase()}_ESTEMUDA.xlsx`);
+}
+
+function exportAssetSummaryDoc() {
+    const l1Html = getLabTableHtml('lab1');
+    const l2Html = getLabTableHtml('lab2');
+    const combined = `<h4 style="margin-top:20px;">LAB KOMPUTER 1 (53 m²)</h4>${l1Html}<h4 style="margin-top:20px;">LAB KOMPUTER 2 (51 m²)</h4>${l2Html}`;
+    exportToDoc('Kesimpulan Laporan Inventaris Lab Komputer FM-SAR-07', combined);
+}
+
+function printAssetSummary() {
+    const l1Html = getLabTableHtml('lab1');
+    const l2Html = getLabTableHtml('lab2');
+    document.getElementById('print-doc-title').innerText = 'REKAPITULASI INVENTARIS SARANA PRASARANA LAB KOMPUTER (FM-SAR-07)';
+    document.getElementById('print-table-area').innerHTML = `
+        <h3 class="font-bold text-sm mb-2">1. LAB KOMPUTER 1 (53 m²)</h3>
+        ${l1Html}
+        <h3 class="font-bold text-sm mt-4 mb-2">2. LAB KOMPUTER 2 (51 m²)</h3>
+        ${l2Html}
+    `;
+    window.print();
+}
+
+function printCurrentReport(labKey) {
+    const title = labKey === 'lab1' ? 'LAB KOMPUTER 1 (53 m²)' : 'LAB KOMPUTER 2 (51 m²)';
+    document.getElementById('print-doc-title').innerText = `LAPORAN INVENTARIS ${title}`;
+    document.getElementById('print-table-area').innerHTML = getLabTableHtml(labKey);
+    window.print();
+}
+</script>
+</body>
+</html>
